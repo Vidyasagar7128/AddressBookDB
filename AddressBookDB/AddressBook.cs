@@ -106,12 +106,39 @@ namespace AddressBookDB
                 con.Close();
             }
         }
+        /// <summary>
+        /// Delete Contact using Name 
+        /// </summary>
+        public void DeleteAddressBookContact()
+        {
+            Console.Write("Enter Name for Delete Contact: ");
+            string name = Console.ReadLine();
+            con.ConnectionString = connectionPath;
+            SqlCommand sqlCommand = new SqlCommand($"delete from addressBook where Firstname = '{name}'", con);
+            try
+            {
+                con.Open();
+                int count = sqlCommand.ExecuteNonQuery();
+                if (count == 1)
+                    Console.WriteLine($"Contact Deleted Succesfully...");
+                else
+                    Console.WriteLine($"Failed to Delete Contact...");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
         public void Repeat()
         {
             bool repeat = true;
             while (repeat)
             {
-                Console.WriteLine("1.Create Contact 2.Edit Contact");
+                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 0.Exit");
                 int num = int.Parse(Console.ReadLine());
                 switch (num)
                 {
@@ -121,6 +148,10 @@ namespace AddressBookDB
                         break;
                     case 2:
                         EditAddressBookContact();
+                        Repeat();
+                        break;
+                    case 3:
+                        DeleteAddressBookContact();
                         Repeat();
                         break;
                     case 0:
