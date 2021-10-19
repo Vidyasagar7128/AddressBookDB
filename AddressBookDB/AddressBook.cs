@@ -14,6 +14,11 @@ namespace AddressBookDB
         /// </summary>
         public void CreateAddressBookContact()
         {
+            Console.Write("AddressBook Name: ");
+            string bookName = Console.ReadLine();
+            Console.Write("AddressBook Type: ");
+            string bookType = Console.ReadLine();
+
             Console.Write("FirstName: ");
             string fname = Console.ReadLine();
             Console.Write("LastName: ");
@@ -44,7 +49,9 @@ namespace AddressBookDB
             sqlCommand.Parameters.Add("@Zip", SqlDbType.VarChar).Value = zip;
             sqlCommand.Parameters.Add("@Phone", SqlDbType.VarChar).Value = phone;
             sqlCommand.Parameters.Add("@Email", SqlDbType.VarChar).Value = email;
-            
+            sqlCommand.Parameters.Add("@BookName", SqlDbType.VarChar).Value = bookName;
+            sqlCommand.Parameters.Add("@BookType", SqlDbType.VarChar).Value = bookType;
+
             try
             {
                 con.Open();
@@ -142,17 +149,15 @@ namespace AddressBookDB
             string find = Console.ReadLine();
             int count = 0;
             con.ConnectionString = connectionPath;
-            SqlCommand sqlCommand = new SqlCommand($"select * from addressBook where City = '{find}' OR State = '{find}'", con);
+            SqlCommand sqlCommand = new SqlCommand($"select * from addressBook where City = '{find}' OR State = '{find}' ORDER BY FirstName", con);
             try
             {
                 con.Open();
                 SqlDataReader reader = sqlCommand.ExecuteReader();
-                Console.WriteLine("------------------------------------------------------------------------------------");
                 while (reader.Read())
                 {
                     count++;
                     Console.WriteLine($"Counts {count}: {reader["FirstName"]} {reader["LastName"]} {reader["Address"]} {reader["City"]} {reader["State"]} {reader["Zip"]} {reader["Phone"]} {reader["Email"]}");
-                    Console.WriteLine("------------------------------------------------------------------------------------");
                 }
             }
             catch (Exception e)
@@ -164,6 +169,9 @@ namespace AddressBookDB
                 con.Close();
             }
         }
+        /// <summary>
+        /// Show All Contacts
+        /// </summary>
         public void ShowAddressBookContacts()
         {
             con.ConnectionString = connectionPath;
@@ -172,14 +180,40 @@ namespace AddressBookDB
             {
                 con.Open();
                 SqlDataReader reader = sqlCommand.ExecuteReader();
-                Console.WriteLine("--------------------------------------Contacts--------------------------------------");
                 while (reader.Read())
                 {
                     Console.WriteLine($"{reader["FirstName"]} {reader["LastName"]} {reader["Address"]} {reader["City"]} {reader["State"]} {reader["Zip"]} {reader["Phone"]} {reader["Email"]}");
-                    Console.WriteLine("------------------------------------------------------------------------------------");
                 }
             }
             catch(Exception e)
+            {
+                Console.Write($"Error: {e}");
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+        public void FindByType()
+        {
+            Console.Write("Enter AddressBook Type: ");
+            string find = Console.ReadLine();
+            int count = 0;
+            con.ConnectionString = connectionPath;
+            SqlCommand sqlCommand = new SqlCommand($"select * from addressBook where BookType = '{find}'", con);
+            try
+            {
+                con.Open();
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                while (reader.Read())
+                {
+                    count++;
+                    Console.WriteLine($"Count: {count} && {reader["FirstName"]} {reader["LastName"]} {reader["Address"]} {reader["City"]} {reader["State"]} {reader["Zip"]} {reader["Phone"]} {reader["Email"]}");
+                }
+                if (count == 0)
+                    Console.WriteLine($"Sorry! We Could not found BookType by {find}");
+            }
+            catch (Exception e)
             {
                 Console.Write($"Error: {e}");
             }
@@ -193,7 +227,7 @@ namespace AddressBookDB
             bool repeat = true;
             while (repeat)
             {
-                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 4.Search Contact 5. Show All Contacts 0.Exit");
+                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 4.Search Contact 5. Show All Contacts 6.Find by Type 0.Exit");
                 int num = int.Parse(Console.ReadLine());
                 switch (num)
                 {
@@ -215,6 +249,10 @@ namespace AddressBookDB
                         break;
                     case 5:
                         ShowAddressBookContacts();
+                        Repeat();
+                        break;
+                    case 6:
+                        FindByType();
                         Repeat();
                         break;
                     case 0:
