@@ -133,12 +133,41 @@ namespace AddressBookDB
                 con.Close();
             }
         }
+        /// <summary>
+        /// Search Record using City
+        /// </summary>
+        public void SearchAddressBookContact()
+        {
+            Console.Write("Enter City or State to Find Contact: ");
+            string find = Console.ReadLine();
+            con.ConnectionString = connectionPath;
+            SqlCommand sqlCommand = new SqlCommand($"select * from addressBook where City = '{find}' OR State = '{find}'", con);
+            try
+            {
+                con.Open();
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                Console.WriteLine("------------------------------------------------------------------------------------");
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["FirstName"]} {reader["LastName"]} {reader["Address"]} {reader["City"]} {reader["State"]} {reader["Zip"]} {reader["Phone"]} {reader["Email"]}");
+                    Console.WriteLine("------------------------------------------------------------------------------------");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write($"Error: {e}");
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
         public void Repeat()
         {
             bool repeat = true;
             while (repeat)
             {
-                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 0.Exit");
+                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 4.Search Contact 0.Exit");
                 int num = int.Parse(Console.ReadLine());
                 switch (num)
                 {
@@ -152,6 +181,10 @@ namespace AddressBookDB
                         break;
                     case 3:
                         DeleteAddressBookContact();
+                        Repeat();
+                        break;
+                    case 4:
+                        SearchAddressBookContact();
                         Repeat();
                         break;
                     case 0:
