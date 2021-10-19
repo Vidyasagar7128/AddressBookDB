@@ -57,7 +57,7 @@ namespace AddressBookDB
                 con.Open();
                 int count = sqlCommand.ExecuteNonQuery();
                 if (count == -1)
-                    Console.WriteLine($"Contact Created Succesfully...");
+                    AddType(fname, bookType);
                 else
                     Console.WriteLine($"Failed to Create AddressBook...");
             }
@@ -194,6 +194,9 @@ namespace AddressBookDB
                 con.Close();
             }
         }
+        /// <summary>
+        /// Count By Type
+        /// </summary>
         public void FindByType()
         {
             Console.Write("Enter AddressBook Type: ");
@@ -222,12 +225,122 @@ namespace AddressBookDB
                 con.Close();
             }
         }
+        public void AddType(string name,string booktype)
+        {
+            con.Close();
+            SqlCommand sqlCommand = new SqlCommand($"select * from addressBook where Firstname = '{name}'", con);
+            try
+            {
+                con.Open();
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                int id = 0;
+                while (reader.Read())
+                {
+                    id = (int)reader["Id"];
+                }
+                if (id == 0)
+                    Console.WriteLine("Failed!");
+                con.Close();
+                ///New Code
+                SqlCommand sqlDepartment = new SqlCommand();
+                sqlDepartment.Connection = con;
+                sqlDepartment.CommandType = CommandType.StoredProcedure;
+                sqlDepartment.CommandText = "sp_BookType";
+                sqlDepartment.Parameters.Add("@BookType", SqlDbType.VarChar).Value = booktype;
+                sqlDepartment.Parameters.Add("@ContactId", SqlDbType.VarChar).Value = id;
+                try
+                {
+                    con.Open();
+                    int count = sqlDepartment.ExecuteNonQuery();
+                    if (count == -1)
+                        Console.WriteLine($"Contact Added Succesfully...");
+                    else
+                        Console.WriteLine($"Failed to Add Contact...");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error: {e.Message}");
+                }
+                finally
+                {
+                    con.Close();
+                }
+                ///
+            }
+            catch (Exception e)
+            {
+                Console.Write($"Error: {e}");
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+        /// <summary>
+        /// Add Type your Own
+        /// </summary>
+        public void AddCustomType()
+        {
+            Console.Write("Enter Name: ");
+            string find = Console.ReadLine();
+            int id = 0;
+            con.ConnectionString = connectionPath;
+            SqlCommand sqlCommand = new SqlCommand($"select * from addressBook where FirstName = '{find}'", con);
+            try
+            {
+                con.Open();
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                while (reader.Read())
+                {
+                    id = (int) reader["Id"];
+                }
+                if (id == 0)
+                    Console.WriteLine($"Sorry! We Could not found Name by {find}");
+                else
+                {
+                    con.Close();
+                    Console.WriteLine("Enter Type");
+                    string bkType = Console.ReadLine();
+                    SqlCommand sqlDepartment = new SqlCommand();
+                    sqlDepartment.Connection = con;
+                    sqlDepartment.CommandType = CommandType.StoredProcedure;
+                    sqlDepartment.CommandText = "sp_BookType";
+                    sqlDepartment.Parameters.Add("@BookType", SqlDbType.VarChar).Value = bkType;
+                    sqlDepartment.Parameters.Add("@ContactId", SqlDbType.VarChar).Value = id;
+                    try
+                    {
+                        con.Open();
+                        int insrt = sqlDepartment.ExecuteNonQuery();
+                        if (insrt == -1)
+                            Console.WriteLine($"Contact Added Succesfully...");
+                        else
+                            Console.WriteLine($"Failed to Add Contact...");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error: {e.Message}");
+                    }
+                    finally
+                    {
+                        con.Close();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write($"Error: {e}");
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
         public void Repeat()
         {
             bool repeat = true;
             while (repeat)
             {
-                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 4.Search Contact 5. Show All Contacts 6.Find by Type 0.Exit");
+                Console.WriteLine("1.Create Contact 2.Edit Contact 3.Delete Contact 4.Search Contact 5. Show All Contacts 6.Find by Type 7.Add Type to Contact 0.Exit");
                 int num = int.Parse(Console.ReadLine());
                 switch (num)
                 {
@@ -253,6 +366,10 @@ namespace AddressBookDB
                         break;
                     case 6:
                         FindByType();
+                        Repeat();
+                        break;
+                    case 7:
+                        AddCustomType();
                         Repeat();
                         break;
                     case 0:
