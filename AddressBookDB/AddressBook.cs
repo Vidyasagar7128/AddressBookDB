@@ -63,17 +63,64 @@ namespace AddressBookDB
                 con.Close();
             }
         }
+        /// <summary>
+        /// Edit AddressBook Contact 
+        /// </summary>
+        public void EditAddressBookContact()
+        {
+            Console.Write("Enter Name to Update Contact: ");
+            string uname = Console.ReadLine();
+            Console.Write("FirstName: ");
+            string fname = Console.ReadLine();
+            Console.Write("LastName: ");
+            string lname = Console.ReadLine();
+            Console.Write("Address: ");
+            string address = Console.ReadLine();
+            Console.Write("City: ");
+            string city = Console.ReadLine();
+            Console.Write("State: ");
+            string state = Console.ReadLine();
+            Console.Write("ZIP: ");
+            string zip = Console.ReadLine();
+            Console.Write("Phone: ");
+            string phone = Console.ReadLine();
+            Console.Write("Email: ");
+            string email = Console.ReadLine();
+            con.ConnectionString = connectionPath;
+            SqlCommand sqlCommand = new SqlCommand($"UPDATE addressBook SET FirstName='{fname}', LastName='{lname}', Address='{address}', City='{city}',State='{state}', Zip='{zip}', Phone='{phone}',Email='{email}' where FirstName='{uname}'", con);
+            try
+            {
+                con.Open();
+                int count = sqlCommand.ExecuteNonQuery();
+                if (count == 1)
+                    Console.WriteLine($"Contact Updated Succesfully...");
+                else
+                    Console.WriteLine($"Failed to Update Contact...");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
         public void Repeat()
         {
             bool repeat = true;
             while (repeat)
             {
-                Console.WriteLine("1.Create Contact");
+                Console.WriteLine("1.Create Contact 2.Edit Contact");
                 int num = int.Parse(Console.ReadLine());
                 switch (num)
                 {
                     case 1:
                         CreateAddressBookContact();
+                        Repeat();
+                        break;
+                    case 2:
+                        EditAddressBookContact();
                         Repeat();
                         break;
                     case 0:
